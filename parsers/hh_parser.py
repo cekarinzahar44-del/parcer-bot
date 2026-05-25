@@ -25,8 +25,9 @@ async def parse_hh(config: dict) -> tuple[list[dict], dict]:
         "text":     config.get("text", ""),
         "area":     config.get("area", 113),
         "per_page": min(int(config.get("per_page", 50)), 100),
-        "only_with_salary": config.get("only_with_salary", False),
     }
+    if config.get("only_with_salary"):
+        params["only_with_salary"] = "true"
     if config.get("salary_from"):
         params["salary"] = config["salary_from"]
     if config.get("experience"):
