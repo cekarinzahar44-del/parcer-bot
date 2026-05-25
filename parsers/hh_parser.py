@@ -10,12 +10,16 @@ import os
 
 
 HH_API = "https://api.hh.ru"
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Accept": "application/json",
-    "Accept-Language": "ru-RU,ru;q=0.9",
-    "HH-User-Agent": "TelegramBot/1.0 (support@example.com)",
-}
+
+def _get_headers():
+    import os
+    # Формат: НазваниеПриложения/Версия (email)
+    # Задайте HH_USER_AGENT в переменных BotHost
+    ua = os.environ.get("HH_USER_AGENT", "MyApp/1.0 zahar.chekarin@mail.ru )")
+    return {
+        "User-Agent": ua,
+        "Accept": "application/json",
+    }
 
 
 async def parse_hh(config: dict) -> tuple[list[dict], dict]:
@@ -41,7 +45,7 @@ async def parse_hh(config: dict) -> tuple[list[dict], dict]:
 
     items = []
     _proxy = os.environ.get("HTTP_PROXY", "") or None
-    async with aiohttp.ClientSession(headers=HEADERS) as session:
+    async with aiohttp.ClientSession(headers=_get_headers()) as session:
         async with session.get(f"{HH_API}/vacancies", params=params, proxy=_proxy) as resp:
             body = await resp.text()
             if resp.status != 200:
