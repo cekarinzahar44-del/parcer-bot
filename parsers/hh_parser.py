@@ -6,10 +6,16 @@ import aiohttp
 import asyncio
 from typing import Optional
 from utils.html_utils import sanitize_html, escape_html
+import os
 
 
 HH_API = "https://api.hh.ru"
-HEADERS = {"User-Agent": "Mozilla/5.0 (ParserBot/1.0)"}
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Accept": "application/json",
+    "Accept-Language": "ru-RU,ru;q=0.9",
+    "HH-User-Agent": "TelegramBot/1.0 (support@example.com)",
+}
 
 
 async def parse_hh(config: dict) -> tuple[list[dict], dict]:
@@ -34,18 +40,21 @@ async def parse_hh(config: dict) -> tuple[list[dict], dict]:
         params["experience"] = config["experience"]
 
     items = []
+    _proxy = os.environ.get("HTTP_PROXY", "") or None
     async with aiohttp.ClientSession(headers=HEADERS) as session:
-        async with session.get(f"{HH_API}/vacancies", params=params) as resp:
+        async with session.get(f"{HH_API}/vacancies", params=params, proxy=_proxy) as resp:
+            body = await resp.text()
             if resp.status != 200:
-                raise ValueError(f"HH API вернул {resp.status}")
-            raw = await resp.json()
+                raise ValueError(f"HH API вернул {resp.status}. Ответ: {body[:300]}")
+            import json as _json
+            raw = _json.loads(body)
 
         vacancies = raw.get("items", [])
 
         # Детали первых 20 вакансий (rate limit)
         for v in vacancies[:20]:
             try:
-                async with session.get(f"{HH_API}/vacancies/{v['id']}") as r:
+                async with session.get(f"{HH_API}/vacancies/{v['id']}", proxy=_proxy) as r:
                     detail = await r.json()
                     salary = detail.get("salary") or {}
                     item = {
