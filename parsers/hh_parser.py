@@ -5,6 +5,7 @@
 import aiohttp
 import asyncio
 from typing import Optional
+from utils.html_utils import sanitize_html, escape_html
 
 
 HH_API = "https://api.hh.ru"
@@ -48,17 +49,17 @@ async def parse_hh(config: dict) -> tuple[list[dict], dict]:
                     salary = detail.get("salary") or {}
                     item = {
                         "id":          detail["id"],
-                        "title":       detail["name"],
+                        "title":       sanitize_html(detail["name"], 200),
                         "url":         detail["alternate_url"],
-                        "company":     detail.get("employer", {}).get("name", ""),
-                        "city":        detail.get("area", {}).get("name", ""),
+                        "company":     escape_html(detail.get("employer", {}).get("name", "")),
+                        "city":        escape_html(detail.get("area", {}).get("name", "")),
                         "salary_from": salary.get("from"),
                         "salary_to":   salary.get("to"),
                         "currency":    salary.get("currency", "RUR"),
-                        "experience":  detail.get("experience", {}).get("name", ""),
-                        "schedule":    detail.get("schedule", {}).get("name", ""),
+                        "experience":  escape_html(detail.get("experience", {}).get("name", "")),
+                        "schedule":    escape_html(detail.get("schedule", {}).get("name", "")),
                         "skills":      [s["name"] for s in detail.get("key_skills", [])],
-                        "description": _strip_html(detail.get("description", ""))[:300],
+                        "description": sanitize_html(detail.get("description", ""), 300),
                         "published":   detail.get("published_at", "")[:10],
                     }
                     items.append(item)
@@ -68,10 +69,10 @@ async def parse_hh(config: dict) -> tuple[list[dict], dict]:
                 salary = v.get("salary") or {}
                 items.append({
                     "id":          v["id"],
-                    "title":       v["name"],
+                    "title":       escape_html(v["name"]),
                     "url":         v["alternate_url"],
-                    "company":     v.get("employer", {}).get("name", ""),
-                    "city":        v.get("area", {}).get("name", ""),
+                    "company":     escape_html(v.get("employer", {}).get("name", "")),
+                    "city":        escape_html(v.get("area", {}).get("name", "")),
                     "salary_from": salary.get("from"),
                     "salary_to":   salary.get("to"),
                     "currency":    salary.get("currency", "RUR"),
@@ -132,11 +133,11 @@ def fmt_hh_item(item: dict) -> str:
 
     skills = ", ".join(item.get("skills", [])[:5]) or "—"
     return (
-        f"💼 <b>{item['title']}</b>\n"
-        f"🏢 {item.get('company','')}\n"
-        f"📍 {item.get('city','')}\n"
+        f"💼 <b>{sanitize_html(item['title'], 100)}</b>\n"
+        f"🏢 {escape_html(item.get('company',''))}\n"
+        f"📍 {escape_html(item.get('city',''))}\n"
         f"💰 {salary_str}\n"
-        f"🎓 {item.get('experience','')}\n"
-        f"🛠 {skills}\n"
+        f"🎓 {escape_html(item.get('experience',''))}\n"
+        f"🛠 {escape_html(skills)}\n"
         f"🔗 {item.get('url','')}"
     )
