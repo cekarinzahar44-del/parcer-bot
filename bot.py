@@ -34,16 +34,16 @@ async def main():
     dp.message.middleware(UserMiddleware())
     dp.callback_query.middleware(UserMiddleware())
 
-    # Роутеры
+    # Ð Ð¾ÑƒÑ‚ÐµÑ€Ñ‹
     dp.include_router(start.router)
     dp.include_router(sources.router)
     dp.include_router(parsing.router)
     dp.include_router(export_sched.router)
 
-    # Планировщик
+    # ÐŸÐ»Ð°Ð½Ð¸Ñ€Ð¾Ð²Ñ‰Ð¸Ðº
     asyncio.create_task(scheduler_loop(bot))
 
-    logger.info("🚀 Parser Bot запущен!")
+    logger.info("ðŸš€ Parser Bot Ð·Ð°Ð¿ÑƒÑ‰ÐµÐ½!")
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
