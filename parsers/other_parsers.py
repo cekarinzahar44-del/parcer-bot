@@ -11,6 +11,7 @@ from datetime import datetime
 from xml.etree import ElementTree as ET
 from html.parser import HTMLParser
 import re
+from utils.html_utils import sanitize_html, escape_html
 
 
 # ═══════════════════════════════════════════════════════════
@@ -175,8 +176,8 @@ async def parse_github(config: dict) -> tuple[list[dict], dict]:
 
 def fmt_github_item(item: dict) -> str:
     return (
-        f"#{item['rank']} 🐙 <b>{item['title']}</b>\n"
-        f"📝 {item.get('description','—')[:120]}\n"
+        f"#{item['rank']} 🐙 <b>{escape_html(item['title'])}</b>\n"
+        f"📝 {escape_html(item.get('description','—')[:120])}\n"
         f"🔗 {item['url']}"
     )
 
@@ -257,9 +258,9 @@ async def parse_news(config: dict) -> tuple[list[dict], dict]:
 def fmt_news_item(item: dict) -> str:
     pub = item.get("published", "")[:16]
     return (
-        f"📰 <b>{item['title']}</b>\n"
+        f"📰 <b>{escape_html(item['title'])}</b>\n"
         f"📅 {pub}\n"
-        f"📝 {item.get('description','')[:150]}...\n"
+        f"📝 {sanitize_html(item.get('description',''), 150)}\n"
         f"🔗 {item.get('url','')}"
     )
 
@@ -345,15 +346,15 @@ async def parse_weather(config: dict) -> tuple[list[dict], dict]:
 def fmt_weather_item(item: dict) -> str:
     if item["type"] == "current":
         return (
-            f"🌡 <b>Сейчас в {item['city']}</b>\n"
+            f"🌡 <b>Сейчас в {escape_html(item['city'])}</b>\n"
             f"🌡 Температура: {item['temp_c']}°C (ощущается {item['feels_like']}°C)\n"
             f"💧 Влажность: {item['humidity']}%\n"
             f"💨 Ветер: {item['wind_kmph']} км/ч\n"
-            f"☁️ {item['description']}"
+            f"☁️ {escape_html(item['description'])}"
         )
     else:
         return (
-            f"{item.get('icon','🌡')} <b>{item['date']}</b> — {item['city']}\n"
+            f"{item.get('icon','🌡')} <b>{item['date']}</b> — {escape_html(item['city'])}\n"
             f"🌡 {item['temp_min']}°C ... {item['temp_max']}°C\n"
-            f"☁️ {item['description']}"
+            f"☁️ {escape_html(item['description'])}"
         )
