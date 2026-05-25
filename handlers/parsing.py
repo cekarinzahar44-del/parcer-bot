@@ -13,6 +13,7 @@ from parsers.other_parsers import fmt_currency_item, fmt_github_item, fmt_news_i
 from keyboards.kb import (
     sources_list_kb, source_card_kb, paginate_kb, main_menu, cancel_kb
 )
+from utils.html_utils import escape_html, sanitize_html
 
 router = Router()
 
@@ -88,7 +89,7 @@ async def cb_parse_now(call: CallbackQuery):
     source_id = int(call.data.split(":")[1])
     s = await get_source(source_id)
 
-    wait_msg = await call.message.answer(f"⏳ Парсю <b>{s['name']}</b>...")
+    wait_msg = await call.message.answer(f"⏳ Парсю <b>{escape_html(s['name'])}</b>...")
     await call.answer()
 
     result = await run_parser(source_id)
@@ -96,7 +97,8 @@ async def cb_parse_now(call: CallbackQuery):
     await wait_msg.delete()
 
     if not result["ok"]:
-        await call.message.answer(f"❌ Ошибка: {result['error']}")
+        from utils.html_utils import escape_html as _e
+        await call.message.answer(f"❌ Ошибка: {_e(result['error'])}")
         return
 
     metrics_text = fmt_metrics(s, result["metrics"])
