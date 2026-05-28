@@ -6,12 +6,10 @@ from database import (
     save_items, save_metrics, update_source_parsed,
     write_log, get_source
 )
-from parsers.hh_parser    import parse_hh
 from parsers.other_parsers import parse_currency, parse_github, parse_news, parse_weather
 
 
 PARSERS = {
-    "hh":       parse_hh,
     "currency": parse_currency,
     "github":   parse_github,
     "news":     parse_news,
