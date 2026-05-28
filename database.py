@@ -7,7 +7,6 @@ DB_PATH = "parser.db"
 
 # ─── Типы источников ──────────────────────────────────────
 SOURCE_TYPES = {
-    "hh":        "👔 HeadHunter (вакансии)",
     "currency":  "💱 Курсы валют (ЦБ РФ)",
     "news":      "📰 Новости (RSS)",
     "github":    "🐙 GitHub Trending",
