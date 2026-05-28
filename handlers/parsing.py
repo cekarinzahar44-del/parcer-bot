@@ -8,7 +8,6 @@ from database import (
     get_latest_metrics, clear_items
 )
 from parsers.dispatcher import run_parser
-from parsers.hh_parser  import fmt_hh_item
 from parsers.other_parsers import fmt_currency_item, fmt_github_item, fmt_news_item, fmt_weather_item
 from keyboards.kb import (
     sources_list_kb, source_card_kb, paginate_kb, main_menu, cancel_kb
@@ -18,7 +17,6 @@ from utils.html_utils import escape_html, sanitize_html
 router = Router()
 
 FMT_FUNCS = {
-    "hh":       fmt_hh_item,
     "currency": fmt_currency_item,
     "github":   fmt_github_item,
     "news":     fmt_news_item,
@@ -31,15 +29,6 @@ def fmt_metrics(source: dict, metrics: dict) -> str:
     stype = source["type"]
     lines = [f"📊 <b>Метрики: {source['name']}</b>\n"]
 
-    if stype == "hh":
-        lines += [
-            f"📋 Вакансий: {metrics.get('total_vacancies', '—')}",
-            f"💰 Средняя з/п: {int(metrics['avg_salary']):,} ₽" if metrics.get("avg_salary") else "💰 З/п: нет данных",
-            f"⬇️ Минимум: {int(metrics.get('min_salary',0)):,} ₽" if metrics.get("min_salary") else "",
-            f"⬆️ Максимум: {int(metrics.get('max_salary',0)):,} ₽" if metrics.get("max_salary") else "",
-            f"📊 Медиана: {int(metrics.get('median_salary',0)):,} ₽" if metrics.get("median_salary") else "",
-            f"🛠 Топ навыки: {metrics.get('top_skills','—')}",
-        ]
     elif stype == "currency":
         for k, v in metrics.items():
             if k.startswith("rate_"):
