@@ -198,46 +198,6 @@ async def add_source_name(message: Message, state: FSMContext):
         await _save_source(message, state)
 
 
-# HH
-@router.message(AddSourceForm.hh_query)
-async def add_hh_query(message: Message, state: FSMContext):
-    await state.update_data(hh_query=message.text.strip())
-    await state.set_state(AddSourceForm.hh_area)
-    await message.answer(
-        "📍 ID региона (пропустите = вся Россия):\n"
-        "1 — Москва | 2 — Санкт-Петербург | 113 — Россия",
-        reply_markup=skip_cancel_kb()
-    )
-
-
-@router.message(AddSourceForm.hh_area)
-async def add_hh_area(message: Message, state: FSMContext):
-    area = 113
-    if message.text != "⏭ Пропустить":
-        try: area = int(message.text)
-        except: pass
-    await state.update_data(hh_area=area)
-    await state.set_state(AddSourceForm.hh_salary)
-    await message.answer("💰 Зарплата от (₽, или пропустите):", reply_markup=skip_cancel_kb())
-
-
-@router.message(AddSourceForm.hh_salary)
-async def add_hh_salary(message: Message, state: FSMContext):
-    salary = None
-    if message.text != "⏭ Пропустить":
-        try: salary = int(message.text.replace(" ", ""))
-        except: pass
-    data = await state.get_data()
-    await state.update_data(hh_salary=salary)
-    await state.update_data(config={
-        "text": data["hh_query"],
-        "area": data.get("hh_area", 113),
-        "salary_from": salary,
-        "per_page": 50,
-    })
-    await _save_source(message, state)
-
-
 # Currency
 @router.message(AddSourceForm.curr_codes)
 async def add_curr_codes(message: Message, state: FSMContext):
