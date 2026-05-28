@@ -134,10 +134,6 @@ async def cb_logs(call: CallbackQuery):
 class AddSourceForm(StatesGroup):
     choose_type  = State()
     source_name  = State()
-    # HH
-    hh_query     = State()
-    hh_area      = State()
-    hh_salary    = State()
     # Currency
     curr_codes   = State()
     # News/RSS
@@ -174,10 +170,7 @@ async def add_source_name(message: Message, state: FSMContext):
     data = await state.get_data()
     stype = data["stype"]
 
-    if stype == "hh":
-        await state.set_state(AddSourceForm.hh_query)
-        await message.answer("🔍 Поисковый запрос для HH (напр. «Python разработчик»):")
-    elif stype == "currency":
+    if stype == "currency":
         await state.set_state(AddSourceForm.curr_codes)
         await message.answer(
             "💱 Коды валют через запятую (напр. USD,EUR,CNY):\n"
