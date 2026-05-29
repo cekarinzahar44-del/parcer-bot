@@ -29,7 +29,7 @@ def fmt_metrics(source: dict, metrics: dict) -> str:
     stype = source["type"]
     lines = [f"📊 <b>Метрики: {source['name']}</b>\n"]
 
-    elif stype == "currency":
+    if stype == "currency":
         for k, v in metrics.items():
             if k.startswith("rate_"):
                 code = k[5:]
